@@ -9,21 +9,45 @@ export default function Chat() {
     const [message, setMessage] = useState("");
 
     useEffect(() => {
-        socket.on("connect", () => {
-            setIsConnected(true);
-        });
+      // Event handler for 'connect'
+      const handleConnect = () => {
+        setIsConnected(socket.connected);
+      };
 
-        socket.on("disconnect", () => {
-            setIsConnected(false);
-        });
+      // Event handler for 'disconnect'
+      const handleDisconnect = () => {
+        setIsConnected(socket.connected);
+      };
 
-        socket.on("join", (data) => {
-            setMessages((prevMessages) => [...prevMessages, { ...data, type: 'join' }])
-        });
+      // Event handler for 'join'
+      const handleJoin = (data) => {
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { ...data, type: "join" },
+        ]);
+      };
 
-        socket.on('chat', (data) => {
-            setMessages((prevMessages) => [...prevMessages, { ...data, type: 'chat' }]);
-        })
+      // Event handler for 'chat'
+      const handleChat = (data) => {
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { ...data, type: "chat" },
+        ]);
+      };
+
+      // Subscribe to events
+      socket.on("connect", handleConnect);
+      socket.on("disconnect", handleDisconnect);
+      socket.on("join", handleJoin);
+      socket.on("chat", handleChat);
+
+      // Clean up event listeners when the component is unmounted
+      return () => {
+        socket.off("connect", handleConnect);
+        socket.off("disconnect", handleDisconnect);
+        socket.off("join", handleJoin);
+        socket.off("chat", handleChat);
+      };
     }, []);
 
     function onTextChange(e) {
