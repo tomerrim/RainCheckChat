@@ -1,3 +1,30 @@
-p {
+.message {
+    margin: 8px 0;
+    padding: 3px 8px;
+    width: 20vw;
+    height: 3vh;
+    border-radius: 10px;
+    background-color: rgb(184, 175, 163);
+    max-width: 80%;
     color: black;
+}
+
+.my-message {
+    background-color: #DCF8C6;
+    align-self: flex-start;
+}
+
+.others-message {
+    background-color: #E5E5EA;
+    align-self: flex-end;
+}
+
+.join-message {
+    text-align: center;
+    color: green;
+}
+
+.exit-message {
+    text-align: center;
+    color: red;
 }

@@ -8,4 +8,9 @@
     margin-top: 15px;
     display: flex;
     flex-direction: column;
+    align-items: center;
+}
+
+.chat > .chat-message {
+    align-items: start;
 }
