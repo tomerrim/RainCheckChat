@@ -11,12 +11,6 @@
     align-items: center;
 }
 
-.row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
 .chat > .chat-message {
     align-items: start;
 }

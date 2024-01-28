@@ -5,6 +5,7 @@ import NewMessageForm from "../Forms/NewMessageForm";
 import NameForm from "../Forms/NameForm";
 import "./chat.css";
 import Button from "../Button";
+import ChatHeader from "../ChatHeader";
 
 export default function Chat() {
   const [isConnected, setIsConnected] = useState(socket.connected);
@@ -83,10 +84,7 @@ export default function Chat() {
         <NameForm onNameSubmit={handleNameSubmit} />
       ) : (
         <>
-            <div className="row">
-                <h2>Status: {isConnected ? "connected" : "disconnected"}</h2>
-                <Button onClick={handleExit}>Exit</Button>
-            </div>
+          <ChatHeader isConnected={isConnected} onClick={handleExit}/>
           <div className="chat">
             <MessageList messages={messages} />
           </div>
