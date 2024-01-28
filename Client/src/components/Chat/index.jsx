@@ -1,12 +1,16 @@
 import { useState, useEffect } from "react";
-import Message from "../Message";
+import MessageList from "../MessageList";
 import { socket } from "../../Lib/socket";
+import NewMessageForm from "../Forms/NewMessageForm";
+import NameForm from "../Forms/NameForm";
 import "./chat.css";
+import Button from "../Button";
 
 export default function Chat() {
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
+  const [userName, setUserName] = useState("");
   // const [currentUserSid, setCurrentUserSid] = useState("");
 
   // Event handler for 'connect'
@@ -28,6 +32,7 @@ export default function Chat() {
   // Event handler for 'exit'
   const handleExit = (data) => {
     setMessages((prevMessages) => [...prevMessages, { ...data, type: "exit" }]);
+    setUserName("");
   };
 
   // Event handler for 'chat'
@@ -53,12 +58,17 @@ export default function Chat() {
     };
   }, []);
 
-  function onTextChange(e) {
-    const value = e.target.value.trim();
+  function handleNameSubmit(name) {
+    setUserName(name);
+    // emit a 'join' event to the server later
+  }
+
+  function onTextChange(value) {
     setMessage(value);
   }
 
-  function sendMessage() {
+  function sendMessage(e) {
+    e.preventDefault();
     if (message && message.length) {
       socket.emit("chat", message);
     }
@@ -69,14 +79,24 @@ export default function Chat() {
 
   return (
     <>
-      <h2>Status: {isConnected ? "connected" : "disconnected"}</h2>
-      <div className="chat">
-        {messages.map((message, index) => (
-          <Message message={message} currentSid={socket.sid} key={index} />
-        ))}
-      </div>
-      <input type="text" id="message" onChange={onTextChange} />
-      <button onClick={sendMessage}>Send</button>
+      {!userName ? (
+        <NameForm onNameSubmit={handleNameSubmit} />
+      ) : (
+        <>
+            <div className="row">
+                <h2>Status: {isConnected ? "connected" : "disconnected"}</h2>
+                <Button onClick={handleExit}>Exit</Button>
+            </div>
+          <div className="chat">
+            <MessageList messages={messages} />
+          </div>
+          <NewMessageForm
+            inputValue={message}
+            onChange={onTextChange}
+            onClick={sendMessage}
+          />
+        </>
+      )}
     </>
   );
 }

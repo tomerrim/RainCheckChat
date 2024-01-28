@@ -1,6 +1,6 @@
 import "./message.css";
 
-export default function Message({ message, currentSid }) {
+export default function Message({ message, currentUser }) {
     let content;
     let messageTypeClass = "";
 
@@ -11,7 +11,7 @@ export default function Message({ message, currentSid }) {
         break;
       case "chat":
         content = `${message.sid}: ${message.message}`;
-        messageTypeClass = message.sid === currentSid ? "my-message" : "others-message";
+        messageTypeClass = message.sid === currentUser ? "my-message" : "others-message";
         break;
       case "exit":
         content = `${message.sid} has left`;

@@ -1,6 +1,6 @@
 import "./button.css";
 
-const Button = ({ type, children, className, onClick }) => {
+export default function Button({ type, children, className, onClick }) {
   return (
     <button
       type={type || "button"}
@@ -10,6 +10,4 @@ const Button = ({ type, children, className, onClick }) => {
       {children}
     </button>
   );
-};
-
-export default Button;
+}

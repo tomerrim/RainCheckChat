@@ -1,13 +1,13 @@
 import "./input.css";
 
-const Input = ({
+export default function Input({
   type,
   onTextChange = (v) => {},
   placeholder,
   name,
   value,
   className,
-}) => {
+}) {
   const handleChange = (e) => onTextChange(e.target.value);
   return (
     <input
@@ -19,6 +19,4 @@ const Input = ({
       onChange={handleChange}
     />
   );
-};
-
-export default Input;
+}
