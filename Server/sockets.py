@@ -76,7 +76,7 @@ async def chat(sid, name, message):
 
 
 @sio_server.event
-async def disconnect(sid, name):
+async def disconnect(sid):
     """
     Handles the "disconnect" event when a client disconnects from the Socket.IO server.
 
@@ -91,6 +91,6 @@ async def disconnect(sid, name):
         print(f"{sid} disconnected")
 
         # Emit an "exit" event to notify others about the client's disconnection
-        await sio_server.emit("exit", {"sid": sid, "name": name, "type": "exit"})
+        await sio_server.emit("exit", {"sid": sid}, room=sid)
     except Exception as e:
         logger.error(f"Error handling disconnect event: {e}")

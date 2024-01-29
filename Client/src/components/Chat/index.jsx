@@ -32,14 +32,8 @@ export default function Chat() {
   // Event handler for 'join'
   const handleJoin = (data) => {
     console.log("handle join data:", data);
-    // setMessages((prev) => [...prev, {...data, type: "join"}]);
+    setMessages((prev) => [...prev, { sid: data.sid, name: data.name, type: "join" }]);
     // //addMessage({ ...data, type: "join" });
-    // console.log("messages from join(after setMessages): ", messages);
-    setMessages((prev) => {
-      const updatedMessages = [...prev, { ...data, type: "join" }];
-      console.log("messages from join (after setMessages): ", updatedMessages);
-      return updatedMessages;
-    });
     setCurrentUser(data.name);
     setUserName(data.name);
     //addUser(data.name);
@@ -50,7 +44,7 @@ export default function Chat() {
     // Emit an 'exit' event to the server
     socket.emit("exit", { name: currentUser, type: "exit" });
     //addMessage({ name: currentUser, type: "exit" });
-    setMessages((prev) => [...prev, { name: currentUser, type: "exit" }]);
+    setMessages((prev) => [...prev, {sid: socket.sid, name: currentUser, type: "exit" }]);
 
     navigate(`/exit?name=${currentUser}`);
   };
