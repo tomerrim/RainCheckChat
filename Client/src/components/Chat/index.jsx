@@ -1,18 +1,23 @@
 import { useState, useEffect } from "react";
-import MessageList from "../MessageList";
+import { useNavigate, useParams } from "react-router-dom";
+// import MessageList from "../MessageList";
 import { socket } from "../../Lib/socket";
 import NewMessageForm from "../Forms/NewMessageForm";
 import NameForm from "../Forms/NameForm";
 import "./chat.css";
-import Button from "../Button";
 import ChatHeader from "../ChatHeader";
+import Message from "../Message";
+// import { useChat } from "./ChatContext";
 
 export default function Chat() {
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [messages, setMessages] = useState([]);
+  // const { messages, addMessage, addUser } = useChat();
   const [message, setMessage] = useState("");
   const [userName, setUserName] = useState("");
-  // const [currentUserSid, setCurrentUserSid] = useState("");
+  const [currentUser, setCurrentUser] = useState("");
+  const navigate = useNavigate();
+  const { name } = useParams();
 
   // Event handler for 'connect'
   const handleConnect = () => {
@@ -26,24 +31,39 @@ export default function Chat() {
 
   // Event handler for 'join'
   const handleJoin = (data) => {
-    // setCurrentUserSid(data.sid);
-    setMessages((prevMessages) => [...prevMessages, { ...data, type: "join" }]);
+    console.log("handle join data:", data);
+    // setMessages((prev) => [...prev, {...data, type: "join"}]);
+    // //addMessage({ ...data, type: "join" });
+    // console.log("messages from join(after setMessages): ", messages);
+    setMessages((prev) => {
+      const updatedMessages = [...prev, { ...data, type: "join" }];
+      console.log("messages from join (after setMessages): ", updatedMessages);
+      return updatedMessages;
+    });
+    setCurrentUser(data.name);
+    setUserName(data.name);
+    //addUser(data.name);
   };
 
   // Event handler for 'exit'
-  const handleExit = (data) => {
-    setMessages((prevMessages) => [...prevMessages, { ...data, type: "exit" }]);
-    setUserName("");
+  const handleExit = () => {
+    // Emit an 'exit' event to the server
+    socket.emit("exit", { name: currentUser, type: "exit" });
+    //addMessage({ name: currentUser, type: "exit" });
+    setMessages((prev) => [...prev, { name: currentUser, type: "exit" }]);
+
+    navigate(`/exit?name=${currentUser}`);
   };
 
   // Event handler for 'chat'
   const handleChat = (data) => {
-    setMessages((prevMessages) => [...prevMessages, { ...data, type: "chat" }]);
+    // addMessage({ ...data, type: "chat" });
+    setMessages((prev) => [...prev, { ...data, type: "chat" }]);
   };
 
   useEffect(() => {
     // Subscribe to events
-    socket.on("connect", handleConnect);
+    socket.on("connected", handleConnect);
     socket.on("disconnect", handleDisconnect);
     socket.on("join", handleJoin);
     socket.on("chat", handleChat);
@@ -51,7 +71,7 @@ export default function Chat() {
 
     // Clean up event listeners when the component is unmounted
     return () => {
-      socket.off("connect", handleConnect);
+      socket.off("connected", handleConnect);
       socket.off("disconnect", handleDisconnect);
       socket.off("join", handleJoin);
       socket.off("chat", handleChat);
@@ -59,9 +79,15 @@ export default function Chat() {
     };
   }, []);
 
+  useEffect(() => {
+    if (name) {
+      handleNameSubmit(name);
+    }
+  }, [])
+
   function handleNameSubmit(name) {
-    setUserName(name);
-    // emit a 'join' event to the server later
+    // emit a 'join' event to the server 
+    handleJoin({name, type: "join"})
   }
 
   function onTextChange(value) {
@@ -71,11 +97,10 @@ export default function Chat() {
   function sendMessage(e) {
     e.preventDefault();
     if (message && message.length) {
-      socket.emit("chat", message);
+      socket.emit("chat", currentUser, message);
     }
     setMessage("");
-    console.log(message);
-    console.log("messages: ", messages);
+    console.log("messages from send message: ", messages);
   }
 
   return (
@@ -84,9 +109,18 @@ export default function Chat() {
         <NameForm onNameSubmit={handleNameSubmit} />
       ) : (
         <>
-          <ChatHeader isConnected={isConnected} onClick={handleExit}/>
+          <ChatHeader isConnected={isConnected} currentUser={currentUser} onClick={handleExit} />
           <div className="chat">
-            <MessageList messages={messages} />
+            {/* <MessageList messages={messages} /> */}
+            <>
+              {messages.map((message, index) => (
+                <Message
+                  message={message}
+                  currentUser={currentUser}
+                  key={index}
+                />
+              ))}
+            </>
           </div>
           <NewMessageForm
             inputValue={message}

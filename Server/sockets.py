@@ -29,13 +29,35 @@ async def connect(sid, environ, auth):
         print(f"{sid} connected")
 
         # Emit a "join" event to notify others about the new connection
-        await sio_server.emit("join", {"sid": sid})
+        await sio_server.emit("connected", {"sid": sid})
     except Exception as e:
         logger.error(f"Error handling connect event: {e}")
 
 
 @sio_server.event
-async def chat(sid, message):
+async def join(sid, data):
+    """
+    Handles the "join" event when a client wants to join the chat.
+
+    Parameters:
+    - sid (str): The unique session ID of the client.
+    - data (dict): Data containing information like the user's name.
+
+    Returns:
+    None
+    """
+    try:
+        name = data.get("name", "Anonymous")
+        logger.info(f"{sid} joined as {name}")
+
+        # Emit a "join" event to notify others about the new connection
+        await sio_server.emit("join", {"sid": sid, "name": name, "type": "join"})
+    except Exception as e:
+        logger.error(f"Error handling join event: {e}")
+
+
+@sio_server.event
+async def chat(sid, name, message):
     """
     Handles the "chat" event when a client sends a chat message.
 
@@ -48,13 +70,13 @@ async def chat(sid, message):
     """
     try:
         # Emit a "chat" event to broadcast the message to all clients
-        await sio_server.emit("chat", {"sid": sid, "message": message})
+        await sio_server.emit("chat", {"sid": sid, "name": name, "message": message})
     except Exception as e:
         logger.error(f"Error handling chat event: {e}")
 
 
 @sio_server.event
-async def disconnect(sid):
+async def disconnect(sid, name):
     """
     Handles the "disconnect" event when a client disconnects from the Socket.IO server.
 
@@ -69,6 +91,6 @@ async def disconnect(sid):
         print(f"{sid} disconnected")
 
         # Emit an "exit" event to notify others about the client's disconnection
-        await sio_server.emit("exit", {"sid": sid})
+        await sio_server.emit("exit", {"sid": sid, "name": name, "type": "exit"})
     except Exception as e:
         logger.error(f"Error handling disconnect event: {e}")
