@@ -10,6 +10,8 @@ sio_app = socketio.ASGIApp(
     socketio_path="/sockets",
 )
 
+users = {}
+
 
 @sio_server.event
 async def connect(sid, environ, auth):
@@ -48,7 +50,10 @@ async def join(sid, data):
     """
     try:
         name = data.get("name", "Anonymous")
+        print(f"joined as {name}")
         logger.info(f"{sid} joined as {name}")
+
+        users[sid] = {"name": name}
 
         # Emit a "join" event to notify others about the new connection
         await sio_server.emit("join", {"sid": sid, "name": name, "type": "join"})
@@ -89,8 +94,16 @@ async def disconnect(sid):
     try:
         logger.info(f"{sid} disconnected")
         print(f"{sid} disconnected")
+        name = users.get(sid, {}).get("name", "Unknown")
+
+        # Remove user's information from the dictionary
+        if sid in users:
+            del users[sid]
 
         # Emit an "exit" event to notify others about the client's disconnection
-        await sio_server.emit("exit", {"sid": sid}, room=sid)
+        await sio_server.emit(
+            "exit", {"sid": sid, "name": name, "type": "exit"}, room=sid
+        )
+        print(f"exit {name}")
     except Exception as e:
         logger.error(f"Error handling disconnect event: {e}")

@@ -26,27 +26,25 @@ export default function Chat() {
 
   // Event handler for 'disconnect'
   const handleDisconnect = () => {
+    console.log("on disconnect")
     setIsConnected(socket.connected);
+    socket.emit("exit", { name: currentUser, type: "exit" });
   };
 
   // Event handler for 'join'
   const handleJoin = (data) => {
     console.log("handle join data:", data);
     setMessages((prev) => [...prev, { sid: data.sid, name: data.name, type: "join" }]);
-    // //addMessage({ ...data, type: "join" });
-    setCurrentUser(data.name);
-    setUserName(data.name);
-    //addUser(data.name);
   };
 
   // Event handler for 'exit'
   const handleExit = () => {
+    console.log("handle exit user:", { name: currentUser, type: "exit" });
     // Emit an 'exit' event to the server
     socket.emit("exit", { name: currentUser, type: "exit" });
-    //addMessage({ name: currentUser, type: "exit" });
-    setMessages((prev) => [...prev, {sid: socket.sid, name: currentUser, type: "exit" }]);
-
-    navigate(`/exit?name=${currentUser}`);
+    setMessages((prev) => [...prev, { name: currentUser, type: "exit" }]);
+    socket.disconnect()
+    navigate(`/exit`);
   };
 
   // Event handler for 'chat'
@@ -74,14 +72,19 @@ export default function Chat() {
   }, []);
 
   useEffect(() => {
-    if (name) {
+    if (name && !userName) {
       handleNameSubmit(name);
     }
-  }, [])
+  }, [name, userName])
 
   function handleNameSubmit(name) {
     // emit a 'join' event to the server 
-    handleJoin({name, type: "join"})
+    // handleJoin({name, type: "join"})
+    if (!userName) {
+      socket.emit("join", { name, type: "join" });
+      setCurrentUser(name);
+      setUserName(name);
+    }
   }
 
   function onTextChange(value) {
@@ -94,7 +97,6 @@ export default function Chat() {
       socket.emit("chat", currentUser, message);
     }
     setMessage("");
-    console.log("messages from send message: ", messages);
   }
 
   return (
