@@ -31,6 +31,9 @@ Run the client:
 npm run dev
 ```
 
+
+`The client will be accessible at http://localhost:5173.`
+
 Enter Name page:
 ![chatapp-nameform](https://github.com/tomerrim/RainCheckChat/assets/126825978/0bf09e4f-5c95-4b8b-8cf3-904e02431c45)
 
