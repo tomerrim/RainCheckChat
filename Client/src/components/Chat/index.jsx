@@ -1,18 +1,15 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-// import MessageList from "../MessageList";
 import { socket } from "../../Lib/socket";
 import NewMessageForm from "../Forms/NewMessageForm";
 import NameForm from "../Forms/NameForm";
 import "./chat.css";
 import ChatHeader from "../ChatHeader";
 import Message from "../Message";
-// import { useChat } from "./ChatContext";
 
 export default function Chat() {
   const [isConnected, setIsConnected] = useState(socket.connected);
   const [messages, setMessages] = useState([]);
-  // const { messages, addMessage, addUser } = useChat();
   const [message, setMessage] = useState("");
   const [userName, setUserName] = useState("");
   const [currentUser, setCurrentUser] = useState("");
@@ -49,7 +46,6 @@ export default function Chat() {
 
   // Event handler for 'chat'
   const handleChat = (data) => {
-    // addMessage({ ...data, type: "chat" });
     setMessages((prev) => [...prev, { ...data, type: "chat" }]);
   };
 
@@ -79,7 +75,6 @@ export default function Chat() {
 
   function handleNameSubmit(name) {
     // emit a 'join' event to the server 
-    // handleJoin({name, type: "join"})
     if (!userName) {
       socket.emit("join", { name, type: "join" });
       setCurrentUser(name);
@@ -107,7 +102,6 @@ export default function Chat() {
         <>
           <ChatHeader isConnected={isConnected} currentUser={currentUser} onClick={handleExit} />
           <div className="chat">
-            {/* <MessageList messages={messages} /> */}
             <>
               {messages.map((message, index) => (
                 <Message
