@@ -9,7 +9,7 @@ The server utilizes FastAPI for efficient handling of WebSocket connections, whi
 - Node.js
 - npm (Node Package Manager)
 
-How to Run:
+### How to Run:
 
 Install server dependencies:
 ```
